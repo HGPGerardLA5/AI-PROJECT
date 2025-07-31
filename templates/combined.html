@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI Image Tools</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="static/styles.css">
+  <style>
+    body.bg-light h1,
+    body.bg-light h2 {
+      color: #212529; /* Bootstrap text-dark */
+    }
+    body.dark-mode h1,
+    body.dark-mode h2 {
+      color: #f8f9fa; /* Bootstrap text-light */
+    }
+  </style>
+</head>
+<body class="bg-light text-dark">
+  <div class="container py-4">
+    <div id="toggle-container" class="text-end mb-3">
+      <button id="dark-mode-toggle" class="btn btn-outline-secondary">Toggle Theme</button>
+    </div>
+
+    <div class="d-flex justify-content-center mb-4">
+      <button class="btn btn-primary mx-2" onclick="showTab('generate')">Generate</button>
+      <button class="btn btn-secondary mx-2" onclick="showTab('upload')">Upload</button>
+    </div>
+
+    <div id="generate-tab" style="display: block;">
+      <h1 class="text-center">Generate an Image</h1>
+      <h2 class="text-center text-muted">This uses DALL·E</h2>
+      <form method="POST" class="text-center my-3">
+        <input type="hidden" name="action" value="generate">
+        <input type="hidden" name="tab" value="generate">
+        <input type="text" name="prompt" class="form-control d-inline w-50" placeholder="Describe your image..." required>
+        <button type="submit" class="btn btn-success mt-2">Generate</button>
+      </form>
+
+      {% if image_url %}
+        <h2 class="text-center">Generated Image:</h2>
+        <div class="card mx-auto mb-4" style="max-width: 512px;">
+          <img src="{{ image_url }}" class="card-img-top" alt="Generated image preview">
+          <div class="card-body text-center">
+            <a href="{{ image_url }}" download class="btn btn-primary">Download</a>
+          </div>
+        </div>
+      {% endif %}
+
+      {% if generate_history %}
+        <div id="history">
+          <h2>Generation History</h2>
+          <div class="row">
+            {% for item in generate_history %}
+              <div class="col-md-4 mb-3">
+                <div class="card">
+                  <img src="{{ item.image_url }}" class="card-img-top" alt="History image">
+                  <div class="card-body">
+                    <p class="card-text"><strong>Prompt:</strong> {{ item.prompt }}</p>
+                    <a href="{{ item.image_url }}" download class="btn btn-outline-primary btn-sm">Download</a>
+                  </div>
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+        </div>
+      {% endif %}
+    </div>
+
+    <div id="upload-tab" style="display: none;">
+      <h1 class="text-center">Upload an Image</h1>
+      <h2 class="text-center text-muted">This detects or analyzes faces.</h2>
+      <form method="POST" enctype="multipart/form-data" class="text-center my-3">
+        <input type="hidden" name="action" value="upload">
+        <input type="hidden" name="tab" value="upload">
+        <input type="file" name="file" accept="image/*" class="form-control d-inline w-50" required>
+        <button type="submit" class="btn btn-success mt-2">Upload</button>
+      </form>
+
+      {% if upload_url %}
+        <h2 class="text-center">Analyzed Image:</h2>
+        <div class="card mx-auto mb-4" style="max-width: 512px;">
+          <img src="{{ upload_url }}" class="card-img-top" alt="Uploaded image preview">
+          <div class="card-body text-center">
+            <a href="{{ upload_url }}" download class="btn btn-primary">Download</a>
+          </div>
+        </div>
+      {% endif %}
+
+      {% if upload_history %}
+        <div id="history">
+          <h2>Upload History</h2>
+          <div class="row">
+            {% for item in upload_history %}
+              <div class="col-md-4 mb-3">
+                <div class="card">
+                  <img src="{{ item.image_url }}" class="card-img-top" alt="History image">
+                  <div class="card-body">
+                    <p class="card-text"><strong>File:</strong> {{ item.filename }}</p>
+                    <a href="{{ item.image_url }}" download class="btn btn-outline-primary btn-sm">Download</a>
+                  </div>
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    function showTab(tabName) {
+      document.getElementById('generate-tab').style.display = tabName === 'generate' ? 'block' : 'none';
+      document.getElementById('upload-tab').style.display = tabName === 'upload' ? 'block' : 'none';
+    }
+
+    const toggleButton = document.getElementById('dark-mode-toggle');
+    const body = document.body;
+    if(window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+      body.classList.add('dark-mode');
+    }
+    toggleButton.addEventListener('click', () => {
+      body.classList.toggle('dark-mode');
+    });
+  </script>
+</body>
+</html>
